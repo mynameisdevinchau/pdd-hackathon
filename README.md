@@ -13,7 +13,7 @@ A [Toolhouse](https://app.toolhouse.ai)–powered app that runs any idea through
 
 ```bash
 # Clone the repo (if you haven't already)
-cd pdd-hackathon-toolhouse
+cd pdd-hackathon
 
 # Install root dependencies (includes Toolhouse CLI)
 npm install
