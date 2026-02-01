@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://api.toolhouse.ai/v1/th-file-schema
 
-id: 31ab0f58-2f6e-48f3-a13a-9d90a9890d9d
+id: __SETUP_REPLACE_ID__
 
 title: Role Orchestrator
 

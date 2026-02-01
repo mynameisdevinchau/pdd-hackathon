@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
- * Deploys all Toolhouse agents, captures their URLs, and creates app/.env.
+ * Creates agents under YOUR Toolhouse account, deploys them, and creates app/.env.
  * Run: npm run setup:env
+ *
+ * This script uses `th new` to create agents in your account (generating IDs tied to you),
+ * then deploys them and captures the URLs for app/.env.
  *
  * Requires: TOOLHOUSE_API_KEY in ~/.toolhouse or env (run `npx th login` if needed)
  */
@@ -15,28 +18,66 @@ const APP_DIR = path.join(PROJECT_ROOT, 'app')
 const ENV_PATH = path.join(APP_DIR, '.env')
 const ENV_EXAMPLE_PATH = path.join(APP_DIR, '.env.example')
 
-const AGENT_FILES = ['orchestrator.yaml', 'debater.yaml', 'synthesizer.yaml']
+const AGENTS = [
+  { template: 'orchestrator.template.yaml', output: 'orchestrator.yaml', temp: '_setup_temp_orchestrator.yaml' },
+  { template: 'debater.template.yaml', output: 'debater.yaml', temp: '_setup_temp_debater.yaml' },
+  { template: 'synthesizer.template.yaml', output: 'synthesizer.yaml', temp: '_setup_temp_synthesizer.yaml' },
+]
 const URL_REGEX = /https:\/\/agents\.toolhouse\.ai\/[a-zA-Z0-9-]+/g
+const ID_REGEX = /id:\s*([a-f0-9-]{36})/i
 
-function deployAndExtractUrl(agentFile) {
-  console.log(`Deploying ${agentFile}...`)
-  const output = execSync(`npx th deploy ${agentFile}`, {
+function createAgentAndDeploy({ template, output, temp }) {
+  const templatePath = path.join(PROJECT_ROOT, template)
+  const outputPath = path.join(PROJECT_ROOT, output)
+  const tempPath = path.join(PROJECT_ROOT, temp)
+
+  console.log(`Creating ${output}...`)
+
+  // 1. Run th new with temp file to create agent under user's account
+  execSync(`npx th new ${temp}`, {
+    encoding: 'utf8',
+    cwd: PROJECT_ROOT,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  })
+
+  // 2. Extract id from the temp file
+  const tempContent = fs.readFileSync(tempPath, 'utf8')
+  const idMatch = tempContent.match(ID_REGEX)
+  if (!idMatch) {
+    fs.unlinkSync(tempPath)
+    throw new Error(`Could not parse agent ID from ${temp}`)
+  }
+  const agentId = idMatch[1]
+
+  // 3. Read template, inject id, write output
+  const templateContent = fs.readFileSync(templatePath, 'utf8')
+  const finalContent = templateContent.replace('__SETUP_REPLACE_ID__', agentId)
+  fs.writeFileSync(outputPath, finalContent, 'utf8')
+
+  // 4. Delete temp file
+  fs.unlinkSync(tempPath)
+
+  // 5. Deploy and capture URL
+  console.log(`Deploying ${output}...`)
+  const deployOutput = execSync(`npx th deploy ${output}`, {
     encoding: 'utf8',
     cwd: PROJECT_ROOT,
   })
-  const urls = output.match(URL_REGEX)
+  const urls = deployOutput.match(URL_REGEX)
   if (!urls || urls.length === 0) {
-    throw new Error(`Could not parse URL from deploy output for ${agentFile}`)
+    throw new Error(`Could not parse URL from deploy output for ${output}`)
   }
+
   return urls[urls.length - 1]
 }
 
 function main() {
-  console.log('\nDeploying agents and creating app/.env\n')
+  console.log('\nSetting up agents under your Toolhouse account...\n')
+  console.log('This will: 1) Create 3 new agents, 2) Deploy them, 3) Create app/.env\n')
 
   const urls = []
-  for (const file of AGENT_FILES) {
-    const url = deployAndExtractUrl(file)
+  for (const agent of AGENTS) {
+    const url = createAgentAndDeploy(agent)
     urls.push(url)
     console.log(`  → ${url}\n`)
   }

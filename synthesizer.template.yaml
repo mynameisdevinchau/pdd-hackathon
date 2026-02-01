@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://api.toolhouse.ai/v1/th-file-schema
 
-id: e916e2e0-9177-44b1-8a72-f051698fee22
+id: __SETUP_REPLACE_ID__
 
 title: Debate Synthesizer
 

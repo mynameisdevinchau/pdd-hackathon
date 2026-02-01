@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://api.toolhouse.ai/v1/th-file-schema
 
-id: 6c67df6e-ea73-4cf4-a81b-5c33bef36be6
+id: __SETUP_REPLACE_ID__
 
 title: Role Debater
 
