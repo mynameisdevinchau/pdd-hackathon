@@ -1,0 +1,16 @@
+{
+  "name": "pdd-hackathon-toolhouse",
+  "version": "1.0.0",
+  "description": "Decision Refinement Engine — structured role-based debate for any idea",
+  "private": true,
+  "scripts": {
+    "agent:run": "th run agent.yaml",
+    "agent:deploy": "th deploy agent.yaml",
+    "agent:new": "th new",
+    "deploy:all": "th deploy orchestrator.yaml && th deploy debater.yaml && th deploy synthesizer.yaml",
+    "dev": "cd app && npm run dev"
+  },
+  "devDependencies": {
+    "@toolhouseai/cli": "latest"
+  }
+}
