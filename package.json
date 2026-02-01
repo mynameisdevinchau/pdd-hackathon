@@ -8,6 +8,7 @@
     "agent:deploy": "th deploy agent.yaml",
     "agent:new": "th new",
     "deploy:all": "th deploy orchestrator.yaml && th deploy debater.yaml && th deploy synthesizer.yaml",
+    "setup:env": "node scripts/setup-env.js",
     "dev": "cd app && npm run dev"
   },
   "devDependencies": {

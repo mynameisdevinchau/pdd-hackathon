@@ -44,42 +44,22 @@ Replace `your_api_key_here` with your actual API key.
 
 **Alternative:** Set the `TOOLHOUSE_API_KEY` environment variable instead.
 
-### 4. Deploy all three agents
+### 4. Deploy agents and configure frontend
 
-From the **project root** (not inside `app/`):
-
-```bash
-npm run deploy:all
-```
-
-Or deploy individually:
+Run the setup script. It deploys all three agents, captures their URLs, and creates `app/.env`:
 
 ```bash
-npx th deploy orchestrator.yaml
-npx th deploy debater.yaml
-npx th deploy synthesizer.yaml
+npm run setup:env
 ```
 
-Each deploy outputs a URL like `https://agents.toolhouse.ai/<agent-id>`. Copy these URLs — you'll need them in the next step.
+This will:
+1. Deploy the orchestrator, debater, and synthesizer agents to Toolhouse
+2. Parse the URLs from each deploy output
+3. Create `app/.env` and `app/.env.example` with your agent URLs
 
-### 5. Configure the frontend
+Make sure you're authenticated first (step 3). The script uses your `TOOLHOUSE_API_KEY`.
 
-```bash
-cd app
-cp .env.example .env
-```
-
-Edit `app/.env` and set the three agent URLs (from the deploy output):
-
-```
-VITE_ORCHESTRATOR_URL=https://agents.toolhouse.ai/YOUR_ORCHESTRATOR_ID
-VITE_DEBATER_URL=https://agents.toolhouse.ai/YOUR_DEBATER_ID
-VITE_SYNTHESIZER_URL=https://agents.toolhouse.ai/YOUR_SYNTHESIZER_ID
-```
-
-The `.env.example` file contains placeholder IDs. Replace them with the actual IDs from your deploy output (the part after `/` in each URL).
-
-### 6. Install frontend dependencies and run
+### 5. Install frontend dependencies and run
 
 ```bash
 cd app
@@ -124,13 +104,16 @@ Flow: Orchestrator → Adversaries (all roles) → Allies (all roles) → Synthe
 | `synthesizer.yaml` | Agent that produces the final plan |
 | `agent.yaml` | Legacy single-agent config (optional) |
 | `app/` | React frontend |
-| `app/.env` | Frontend config (agent URLs) |
+| `app/env.template` | Template showing required env vars |
+| `app/.env` | Frontend config (agent URLs) — created by `npm run setup:env` |
+| `scripts/setup-env.js` | Script to create `app/.env` with your URLs |
 
 ## Commands
 
 | Command | Purpose |
 |---------|---------|
 | `npm run deploy:all` | Deploy all three agents (run from project root) |
+| `npm run setup:env` | Deploy all agents, capture URLs, create `app/.env` and `app/.env.example` |
 | `npx th deploy orchestrator.yaml` | Deploy orchestrator only |
 | `npx th deploy debater.yaml` | Deploy debater only |
 | `npx th deploy synthesizer.yaml` | Deploy synthesizer only |
@@ -141,7 +124,7 @@ Flow: Orchestrator → Adversaries (all roles) → Allies (all roles) → Synthe
 
 - **"Missing script: deploy:all"** — Run `npm run deploy:all` from the **project root**, not from inside `app/`
 - **"Failed to fetch API keys configuration" / 401** — Check that `~/.toolhouse` exists and contains a valid `TOOLHOUSE_API_KEY`
-- **"Set VITE_ORCHESTRATOR_URL..."** — Ensure `app/.env` has all three agent URLs set
+- **"Set VITE_ORCHESTRATOR_URL..."** — Run `npm run setup:env` to deploy agents and create `app/.env`
 - **Agent deployment fails (missing variable)** — Redeploy after updating the agent yaml files
 
 ## Resources

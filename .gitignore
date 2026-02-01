@@ -2,5 +2,8 @@ node_modules/
 .toolhouse
 .env
 .env.local
+.env.example
+app/.env
+app/.env.example
 *.log
 .DS_Store
